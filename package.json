@@ -14,11 +14,13 @@
     "body-parser": "^1.18.3",
     "concurrently": "^4.1.0",
     "express": "^4.16.4",
+    "gravatar": "^1.8.0",
     "is-empty": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.4.20",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
+    "shortid": "^2.2.14",
     "validator": "^10.11.0"
   },
   "devDependencies": {

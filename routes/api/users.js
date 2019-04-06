@@ -3,11 +3,14 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
+const shortid = require('shortid');
 // Load input validation
 const validateRegisterInput = require("../../models/validation/register");
 const validateLoginInput = require("../../models/validation/login");
 // Load User model
 const User = require("../../models/User");
+const Post =require("../../models/post")
+const gravatar = require('gravatar');
 
 // @route POST api/users/register
 // @desc Register user
@@ -23,10 +26,18 @@ router.post("/register", (req, res) => {
       if (user) {
         return res.status(400).json({ email: "Email already exists" });
       } 
+      var id=shortid.generate();
+      var avatar = gravatar.url('req.body.name', {s: '200', r: 'pg', d: '404'});
   const newUser = new User({
+          id,
           name: req.body.name,
-          email: req.body.email,
-          password: req.body.password
+          email:req.body.email,
+          password: req.body.password,
+          title:req.body. title,
+          firstName:req.body.firstName ,
+          lastName:req.body. lastName ,
+          userLevel:req.body.userLevel ,
+          avatar,
         });
   // Hash password before saving in database
         bcrypt.genSalt(10, (err, salt) => {
@@ -79,7 +90,7 @@ router.post("/login", (req, res) => {
             (err, token) => {
               res.json({
                 success: true,
-                token: "Bearer " + token
+                token:  token
               });
             }
           );
@@ -91,5 +102,64 @@ router.post("/login", (req, res) => {
       });
     });
   });
+
+  router.post("/post", (req, res) => {
+    var token = req.headers['x-access-token'];
+   
+    if (!token)
+      return res.status(403).send({ auth: false, message: 'No token provided.' });
+    jwt.verify(token, keys.secretOrKey, function(err, decoded) {
+      if (err){
+      return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+      // if everything good, save to request for use in other routes
+      req.userId = decoded.id;
+      }
+      else{
+        console.log("success");
+        const newPost = new Post({
+         
+          title: req.body.title,
+          content: req.body.content,
+          postID:req.body. postID,
+          categoryID:req.body.categoryID,
+          remarks:req.body. remarks,
+         
+         
+        });
+        newPost
+              .save()
+              .then(post => res.json(post))
+              .catch(err => console.log(err));
+      }
+    });
+  } );
+
+  router.post("/getuser", (req, res) => {
+
+  const email = req.body.email;
+    const password = req.body.password;
+  // Find user by email
+    User.findOne({ email }).then(user => {
+      // Check if user exists
+      if (!user) {
+        return res.status(404).json({ emailnotfound: "Email not found" });
+      }
+  
+        
+          const payload = {
+            id: user.id,
+            name: user.name,
+            firstname:user.firstName,
+            lastname:user.lastName,
+          };
+  
+          res.json({
+            success: true,
+           payload: payload
+          });
+      
+    });
+  });
+
   module.exports = router;
  
