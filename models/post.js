@@ -20,7 +20,7 @@ const PostSchema = new Schema({
   },
   remarks: {
     type: String,
-    required: true
+    
   },
  
 

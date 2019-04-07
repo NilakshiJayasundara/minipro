@@ -103,7 +103,7 @@ router.post("/login", (req, res) => {
     });
   });
 
-  router.post("/post", (req, res) => {
+  router.post("/post/:id/:postID", (req, res) => {
     var token = req.headers['x-access-token'];
    
     if (!token)
@@ -158,6 +158,15 @@ router.post("/login", (req, res) => {
            payload: payload
           });
       
+    });
+  });
+  router.get('/getuserdata/:id', function(req, res) {
+    User.findById(req.params.id, function(err, user) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.json({ message: 'User Found', user: user });
+      }
     });
   });
 
